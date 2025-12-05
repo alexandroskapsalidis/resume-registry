@@ -60,7 +60,6 @@ require_once "pdo.php";
         }
         ?>
       </table>
-
       <p class="d-flex justify-content-center my-4">
         <a href="login.php" class="btn btn-success">Log In</a>
         <a href="index.php" class="btn btn-warning mx-5 px-3">Home</a>
