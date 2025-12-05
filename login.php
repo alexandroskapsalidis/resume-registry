@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $check = hash('md5', $salt . $_POST['password']);
 
-    $stmt = $pdo->prepare("SELECT name, hashed_password FROM users WHERE email = :em");
+    $stmt = $pdo->prepare("SELECT user_id, name, hashed_password FROM users WHERE email = :em");
     $stmt->execute(array(':em' => $email));
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($check === $stored_hash) {
       $_SESSION['email'] = $email;
       $_SESSION['name'] = $row['name'];
+      $_SESSION['user_id'] = $row['user_id'];
       $_SESSION['success'] = "Logged in";
       header("Location: app.php");
       return;
