@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <meta name="author" content="Alexandros">
   <meta name="description" content="Resume Registry management project built with PHP and MySQL.">
   <meta name="keywords" content="PHP, MySQL, Resume Registry, management, project">
-  <link rel="icon" type="image/x-icon" href="">
+  <link rel="icon" type="image/x-icon" href="profiles.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <title>Profiles</title>
 
@@ -135,24 +135,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   <script>
     // JavaScript Form Validation 
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('login-form').addEventListener('submit', function(event) {
-        const email = document.querySelector('[name="email"]').value.trim();
-        const password = document.querySelector('[name="password"]').value.trim();
 
-        if (email === '' || password === '') {
-          alert('Both fields must be filled out');
-          event.preventDefault(); // Prevents submit
-          return;
-        }
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      const email = document.querySelector('[name="email"]').value.trim();
+      const password = document.querySelector('[name="password"]').value.trim();
 
-        // Email format check
-        if (!email.includes('@')) {
-          alert('Invalid email address');
-          event.preventDefault();
-          return;
-        }
-      });
+      if (email === '' || password === '') {
+        alert('Both fields must be filled out');
+        event.preventDefault(); // Prevents submit
+        return;
+      }
+
+      // Email format check
+      if (!email.includes('@')) {
+        alert('Invalid email address');
+        event.preventDefault();
+        return;
+      }
     });
   </script>
 </body>

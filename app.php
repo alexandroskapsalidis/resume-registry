@@ -35,7 +35,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <meta name="author" content="Alexandros">
   <meta name="description" content="Resume Registry management project built with PHP and MySQL.">
   <meta name="keywords" content="PHP, MySQL, Resume Registry, management, project">
-  <link rel="icon" type="image/x-icon" href="">
+  <link rel="icon" type="image/x-icon" href="profiles.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <title>Profiles</title>
 
@@ -100,7 +100,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
       ?>
     </table>
 
-    <p class="d-flex justify-content-center pt-4">
+    <p class="d-flex justify-content-evenly pt-4">
       <a href="add.php" class="btn btn-success  px-4 py-2">Add New Profile</a>
       <a href="index.php" class="btn btn-primary mx-4 px-4 py-2">Home</a>
       <a href="logout.php" class="btn btn-danger px-3 py-2">Log Out</a>
@@ -113,7 +113,6 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
       unset($_SESSION["error"]);
     }
     ?>
-
 
   </main>
 
@@ -139,6 +138,17 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
       });
     });
+
+    // Confirm Log out
+    const logoutLink = document.querySelector('a[href="logout.php"]');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', function(event) {
+        const confirmed = confirm("Are you sure you want to log out?");
+        if (!confirmed) {
+          event.preventDefault(); // Prevents the submit
+        }
+      });
+    }
   </script>
 
 </body>
