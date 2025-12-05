@@ -34,11 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Debugging: Display the computed password hash to check against the database and stop execution
-    echo '<pre>';
-    echo "Computed hash: " . $check . "\n";
-    echo "Stored hash:   " . $row['password'] . "\n";
-    echo '</pre>';
-    die();
+    // echo '<pre>';
+    // echo "Computed hash: " . $check . "\n";
+    // echo "Stored hash:   " . $row['hashed_password'] . "\n";
+    // echo '</pre>';
+    // die();
 
     // Email not found
     if ($row === false) {
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     ?>
     <p>Please Login</p>
-    <form method="post">
+    <form method="post" id="login-form">
       <p>Email:
         <input type="text" size="40" name="email" class="form-control">
       </p>
@@ -132,6 +132,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   </main>
 
+  <script>
+    // JavaScript Form Validation 
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('login-form').addEventListener('submit', function(event) {
+        const email = document.querySelector('[name="email"]').value.trim();
+        const password = document.querySelector('[name="password"]').value.trim();
+
+        if (email === '' || password === '') {
+          alert('Both fields must be filled out');
+          event.preventDefault(); // Prevents submit
+          return;
+        }
+
+        // Email format check
+        if (!email.includes('@')) {
+          alert('Invalid email address');
+          event.preventDefault();
+          return;
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>
