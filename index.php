@@ -45,7 +45,7 @@ session_start();
 
     // Check if we are logged in!
     if (! isset($_SESSION["email"])) { ?>
-      <p class="text-center">Please Log in to edit the Profiles.</p>
+      <p class="text-center">Please log in to edit profiles or view them without log in.</p>
       <p class="d-flex justify-content-center my-4">
         <a href="login.php" class="btn btn-success">Log In</a>
         <a href="view_nologin.php" class="btn btn-primary mx-3">View Profiles</a>

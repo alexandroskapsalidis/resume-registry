@@ -42,7 +42,7 @@ require_once "pdo.php";
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo "<h2 class='text-center'>All Profiles</h2>";
-        echo "<tr><th>User</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Headline</th><th>Summary</th></tr>";
+        echo "<tr><th>User</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Headline</th></tr>";
         foreach ($rows as $row) {
           echo "<tr><td>";
           echo htmlentities($row['name']);
@@ -54,15 +54,13 @@ require_once "pdo.php";
           echo htmlentities($row['email']);
           echo ("</td><td>");
           echo htmlentities($row['headline']);
-          echo ("</td><td>");
-          echo htmlentities($row['summary']);
           echo ("</td></tr>\n");
         }
         ?>
       </table>
       <p class="d-flex justify-content-center my-4">
         <a href="login.php" class="btn btn-success">Log In</a>
-        <a href="index.php" class="btn btn-warning mx-5 px-3">Home</a>
+        <a href="index.php" class="btn btn-primary mx-5 px-3">Home</a>
       </p>
     </main>
   </div>
