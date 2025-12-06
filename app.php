@@ -41,7 +41,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   <style>
     h2 {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
     }
   </style>
 
@@ -79,7 +79,13 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         unset($_SESSION["addMessage"]);
       }
 
-      echo "<h2 class='text-center'>All Profiles of User: {$_SESSION["name"]}</h2>";
+      // Flash error message for updating
+      if (isset($_SESSION["error"])) {
+        echo ('<p style="color:red">' . $_SESSION["error"] . "</p>\n");
+        unset($_SESSION["error"]);
+      }
+
+      echo "<h2 class='text-center'>All Profiles of User: <span class='text-primary'>{$_SESSION["name"]}</span></h2>";
       echo "<tr><th>Name</th><th>Headline</th><th>Summary</th><th>Action</th></tr>";
       foreach ($rows as $row) {
         echo "<tr><td>";
@@ -92,7 +98,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // We use a little form in every row with a Primary Key embeded in the hidden field 
         echo ('<form method="post"><input type="hidden" ');
         echo ('name="profile_id" value="' . htmlentities($row['profile_id']) . '">' . "\n");
-        echo ('<a class="btn btn-warning px-2 py-1 me-2" href="update.php?auto_id=' . $row['profile_id'] . '">Edit</a>');
+        echo ('<a class="btn btn-warning px-2 py-1 me-2" href="update.php?profile_id=' . $row['profile_id'] . '">Edit</a>');
         echo ('<input type="submit" class="btn btn-danger px-2  py-1" value="Delete" name="delete">');
         echo ("\n</form>\n");
         echo ("</td></tr>\n");
@@ -105,14 +111,6 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <a href="index.php" class="btn btn-primary mx-4 px-4 py-2">Home</a>
       <a href="logout.php" class="btn btn-danger px-3 py-2">Log Out</a>
     </p>
-
-    <?php
-    // Flash error message for updating
-    if (isset($_SESSION["error"])) {
-      echo ('<p style="color:red">' . $_SESSION["error"] . "</p>\n");
-      unset($_SESSION["error"]);
-    }
-    ?>
 
   </main>
 
