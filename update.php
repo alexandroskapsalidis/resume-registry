@@ -100,7 +100,7 @@ if ($row === false) {
 
 <body>
   <?php
-  // A welcome message if we are loged in
+  // Show welcome message if the user is logged in
   if (isset($_SESSION['name'])) {
     echo ("<p style='padding: 10px; text-align:right;'>");
     echo (" Hello <span style='color:blue; font-size: 1.2em;'>" . $_SESSION['name'] . "</span>");
@@ -115,7 +115,7 @@ if ($row === false) {
     if (! isset($_SESSION["email"])) {
       die('<p class="text-danger text-center fs-5">Not logged in</p>');
     }
-    // Guardian: Make sure that user_id is present
+    // Guardian: Make sure that profile_id is present
     if (!isset($_GET['profile_id'])) {
       $_SESSION['error'] = "Missing profile_id";
       header('Location: app.php');
@@ -126,7 +126,6 @@ if ($row === false) {
       echo ('<p style="color:red">' . $_SESSION["error"] . "</p>\n");
       unset($_SESSION["error"]);
     }
-
     ?>
 
     <h2 class="mt-5 text-center">Update Profile: <span class="text-primary fs-5"><?= htmlentities($row['first_name']) . ' ' . htmlentities($row['last_name']) ?></span></h2>
@@ -152,7 +151,7 @@ if ($row === false) {
       </p>
 
       <p class="d-flex justify-content-center mt-5">
-        <input type="hidden" name="profile_id" value="<?= $row['profile_id'] ?>">
+        <input type="hidden" name="profile_id" value="<?= htmlentities($row['profile_id']) ?>">
         <input type="submit" class="btn btn-success" value="Update" name="update" />
         <a href="app.php" class="btn btn-warning mx-3 px-4">Cancel</a>
         <a href="logout.php" class="btn btn-danger px-3">Log Out</a>

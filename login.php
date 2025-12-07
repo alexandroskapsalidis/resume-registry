@@ -4,11 +4,16 @@ session_start();
 // Including database connection code 
 require_once "pdo.php";
 
+// Redirect if already logged in
+if (isset($_SESSION['email'])) {
+  header("Location: app.php");
+  return;
+}
+
 // Handling login credentials
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   if (isset($_POST["email"]) && isset($_POST["password"])) {
-    unset($_SESSION["email"]);  // Logout current user
 
     // Checking if they're empty
     if (strlen($_POST['email']) < 1 || strlen($_POST['password']) < 1) {
@@ -17,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       return;
     }
 
-    // Checking @ character in the email
+    // Email validation (checking sympol @)
     if (strpos($_POST['email'], '@') === false) {
       $_SESSION['error'] = "Email must have an at-sign (@)";
       header("Location: login.php");
@@ -29,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $check = hash('md5', $salt . $_POST['password']);
 
+    // Fetching the user
     $stmt = $pdo->prepare("SELECT user_id, name, hashed_password FROM users WHERE email = :em");
     $stmt->execute(array(':em' => $email));
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -100,12 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   <main class="w-50 container bg-light my-5 p-5">
     <h1 class="mb-5 text-center">Resume Registry</h1>
-    <?php
-    if (isset($_SESSION["success"])) {
-      echo ('<p style="color:green" class="text-center">' . $_SESSION["success"] . "</p>\n");
-      unset($_SESSION["success"]);
-    }
-    ?>
     <p>Please Login</p>
     <form method="post" id="login-form">
       <p>Email:

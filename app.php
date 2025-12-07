@@ -49,7 +49,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <body>
   <?php
-  // A welcome message if we are loged in
+  // Show welcome message if the user is logged in
   if (isset($_SESSION['name'])) {
     echo ("<p style='padding: 10px; text-align:right;'>");
     echo (" Hello <span style='color:blue; font-size: 1.2em;'>" . $_SESSION['name'] . "</span>");
@@ -73,7 +73,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo '<p id="deleteMessage" style="color: green; text-align:center; margin:0; padding:0;">' . $_SESSION["deleteMessage"] . '</p>';
         unset($_SESSION["deleteMessage"]);
       }
-      // Message for succesfull insertion 
+      // // Flash success message for completed insertion
       if (!empty($_SESSION["addMessage"])) {
         echo '<p id="addMessage" style="color: green; text-align:center">' . $_SESSION["addMessage"] . '</p>';
         unset($_SESSION["addMessage"]);
@@ -95,10 +95,10 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo ("</td><td>");
         echo htmlentities($row['summary']);
         echo ("</td><td>");
-        // We use a little form in every row with a Primary Key embeded in the hidden field 
+        // We use a little form in every row with a Primary Key embedded in the hidden field 
         echo ('<form method="post"><input type="hidden" ');
         echo ('name="profile_id" value="' . htmlentities($row['profile_id']) . '">' . "\n");
-        echo ('<a class="btn btn-warning px-2 py-1 me-2" href="update.php?profile_id=' . $row['profile_id'] . '">Edit</a>');
+        echo ('<a class="btn btn-warning px-2 py-1 me-2" href="update.php?profile_id=' . htmlentities($row['profile_id']) . '">Edit</a>');
         echo ('<input type="submit" class="btn btn-danger px-2  py-1" value="Delete" name="delete">');
         echo ("\n</form>\n");
         echo ("</td></tr>\n");

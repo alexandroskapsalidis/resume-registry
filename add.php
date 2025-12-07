@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             VALUES (:user_id, :first_name, :last_name, :email, :headline, :summary)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(array(
+      ':user_id'    => $_SESSION['user_id'],
       ':first_name' => $_POST['first_name'],
       ':last_name' => $_POST['last_name'],
       ':email' => $_POST['email'],
@@ -72,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
   <?php
-  // A welcome message if we are loged in
+  // Show welcome message if the user is logged in
   if (isset($_SESSION['name'])) {
     echo ("<p style='padding: 10px; text-align:right;'>");
     echo (" Hello <span style='color:blue; font-size: 1.2em;'>" . $_SESSION['name'] . "</span>");
