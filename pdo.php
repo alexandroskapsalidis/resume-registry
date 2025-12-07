@@ -3,9 +3,9 @@
 
 <?php
 $pdo = new PDO(
-   'mysql:host=localhost;port=3306;dbname=coursera_profiles',
-   'alex',
-   '12345'
+   'mysql:host=localhost;port=3306;dbname=profiles',
+   'youruser',
+   'yourpassword'
 );
 
 // See the "errors" folder for details...
