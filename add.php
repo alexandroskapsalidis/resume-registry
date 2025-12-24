@@ -6,7 +6,7 @@ session_start();
 // Including database connection code 
 require_once "pdo.php";
 
-// Handling Insert new Auto
+// Handling Insert new Profile
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (
     isset($_POST['add']) && isset($_POST['first_name']) && isset($_POST['last_name'])
@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <meta name="keywords" content="PHP, MySQL, Resume Registry, management, project">
   <link rel="icon" type="image/x-icon" href="profiles.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <title>Profiles</title>
 
   <style>
@@ -115,6 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- <input type="text" class="form-control" name="summary"> -->
         <textarea class="form-control" name="summary" rows="4"></textarea>
       </p>
+      <p>Position:
+        <input type="button" id="addPos" class="btn btn-secondary px-2 py-0" name="position" value="+">
+      <div id="position-fields"></div>
+      </p>
       <p class="d-flex justify-content-center mt-5">
         <input type="submit" class="btn btn-success px-3" value="Add" name="add" />
         <a href="app.php" class="btn btn-warning mx-5 px-4">Cancel</a>
@@ -136,6 +141,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
       });
     }
+
+    // When the plus button is being clicked, we take the #position-fields div and append the html code
+    // for the positions. We have a return false; in the minus button in order not to submit the form.
+    let countPos = 0;
+
+    $(document).ready(function() {
+
+      $('#addPos').click(function() {
+
+        if (countPos >= 9) {
+          alert("Maximum of nine position entries exceeded");
+          return;
+        }
+
+        countPos++;
+        let positionId = countPos;
+
+        $('#position-fields').append(`
+          <div id="position${positionId}">
+            <p>
+              Year: <input type="text" name="year${positionId}" />
+              <textarea name="desc${positionId}" rows="6" cols="80"></textarea>
+              <input type="button" class="remove-pos btn btn-secondary px-2 py-0 mt-1" data-id="${positionId}" value="-" />
+            </p>
+          </div>
+        `);
+      });
+
+      // Delegated handler for the "-" buttons
+      $('#position-fields').on('click', '.remove-pos', function() {
+        let id = $(this).data('id');
+        $('#position' + id).remove();
+      });
+
+    });
+
 
     // Form Validation 
     document.getElementById('add-profile-form').addEventListener('submit', function(event) {
