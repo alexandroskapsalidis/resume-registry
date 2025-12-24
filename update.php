@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $_SESSION['error'] = "All the fields are required";
       $profile_id = $_POST['profile_id'];
       // urlencode(): convert special characters into a safe format for use in URLs.
-      header("Location: edit.php?profile_id=" . urlencode($profile_id));
+      header("Location: update.php?profile_id=" . urlencode($profile_id));
       return;
     }
 
@@ -29,8 +29,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (strpos($_POST['email'], '@') === false) {
       $_SESSION['error'] = "Email must have an at-sign (@)";
       $profile_id = $_POST['profile_id'];
-      header("Location: edit.php?profile_id=" . urlencode($profile_id));
+      header("Location: update.php?profile_id=" . urlencode($profile_id));
       return;
+    }
+
+    // Validating Positions   
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($_POST['year' . $i])) continue;
+      if (!isset($_POST['desc' . $i])) continue;
+      $year = $_POST['year' . $i];
+      $desc = $_POST['desc' . $i];
+      if (strlen($year) == 0 || strlen($desc) == 0) {
+        $_SESSION['error'] = "All fields are required";
+        header("Location: update.php");
+        return;
+      }
+      if (!is_numeric($year)) {
+        $_SESSION['error'] = "Position year must be numeric";
+        header("Location: update.php");
+        return;
+      }
     }
 
     // Update the profile row in the database
@@ -53,6 +71,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       ':user_id' => $_SESSION['user_id']
     ));
 
+    // Clear out the old position entries
+    $stmt = $pdo->prepare('DELETE FROM position WHERE profile_id=:pid');
+    $stmt->execute(array(':pid' => $_POST['profile_id']));
+
+    // Insert the new position entries
+    $rank = 1;
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($_POST['year' . $i])) continue;
+      if (!isset($_POST['desc' . $i])) continue;
+
+      $year = $_POST['year' . $i];
+      $desc = $_POST['desc' . $i];
+
+      $stmt = $pdo->prepare('INSERT INTO Position
+        (profile_id, rank, year, description)
+        VALUES ( :pid, :rank, :year, :desc )');
+
+      $stmt->execute(
+        array(
+          ':pid' => $_POST['profile_id'],
+          ':rank' => $rank,
+          ':year' => $year,
+          ':desc' => $desc
+        )
+      );
+
+      $rank++;
+    }
+
     $_SESSION["addMessage"] = "The row updated succesfully.";
     header("Location: app.php");
     return;
@@ -61,10 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Fetching the specific Profile only if bellongs to the logged-in user
 $stmt = $pdo->prepare("SELECT * FROM profile WHERE profile_id = :xyz AND user_id = :user_id");
-$stmt->execute(array(
-  ':xyz' => $_GET['profile_id'],
-  ':user_id' => $_SESSION['user_id']
-));
+$stmt->execute(array(':xyz' => $_GET['profile_id'], ':user_id' => $_SESSION['user_id']));
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($row === false) {
@@ -72,6 +116,10 @@ if ($row === false) {
   header('Location: app.php');
   return;
 }
+
+// Fetching the specific Positions of this Profile
+$stmt_pos = $pdo->prepare("SELECT * FROM position WHERE profile_id = :id ORDER BY rank");
+$stmt_pos->execute(array(':id' => $_GET['profile_id']));
 
 ?>
 
@@ -88,7 +136,9 @@ if ($row === false) {
   <meta name="keywords" content="PHP, MySQL, Resume Registry, management, project">
   <link rel="icon" type="image/x-icon" href="profiles.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <title>Profiles</title>
+
 
   <style>
     h2 {
@@ -128,7 +178,7 @@ if ($row === false) {
     }
     ?>
 
-    <h2 class="mt-5 text-center">Update Profile: <span class="text-primary fs-5"><?= htmlentities($row['first_name']) . ' ' . htmlentities($row['last_name']) ?></span></h2>
+    <h2 class="mt-5 text-center">Update Profile: <span class="text-primary fs-4"><?= htmlentities($row['first_name']) . ' ' . htmlentities($row['last_name']) ?></span></h2>
 
     <!-- Update Profile Form -->
     <form method="POST" class="mt-4" id="update-profile-form">
@@ -147,8 +197,30 @@ if ($row === false) {
       <p>Summary:
         <!-- <input type="text" class="form-control" name="summary" value="<?= htmlentities($row['summary']) ?>"> -->
         <textarea class="form-control" name="summary" rows="4"><?= htmlentities($row['summary']) ?></textarea>
-
       </p>
+      <p>Position:
+        <input type="button" id="addPos" class="btn btn-secondary px-2 py-0" name="position" value="+">
+      </p>
+      <div id="position-fields">
+        <?php
+        // Showing the possitions from the Database
+        $countPos = 0;
+        while ($pos_row = $stmt_pos->fetch(PDO::FETCH_ASSOC)) {
+          $countPos++;
+          $year = htmlentities($pos_row['year']);
+          $description = htmlentities($pos_row['description']);
+
+          echo '<div id="position' . $countPos . '">';
+          echo  '<p>';
+          echo 'Year: <input type="text" name="year' . $countPos . '" value="' . $year . '" />';
+          echo '<textarea name="desc' . $countPos . '" rows="6" cols="80" placeholder="Description">' . $description . '</textarea>';
+          echo '<input type="button" class="remove-pos btn btn-secondary px-2 py-0 mt-1" data-id="' . $countPos . '" value="-" />';
+
+          echo  '</p>';
+          echo '</div>';
+        }
+        ?>
+      </div>
 
       <p class="d-flex justify-content-center mt-5">
         <input type="hidden" name="profile_id" value="<?= htmlentities($row['profile_id']) ?>">
@@ -172,6 +244,34 @@ if ($row === false) {
         }
       });
     }
+
+    // When the plus button is being clicked, we take the #position-fields div and append the html code
+    // for the positions.
+    let countPos = <?= $countPos ?>;
+    $(document).ready(function() {
+      $('#addPos').click(function() {
+        if (countPos >= 9) {
+          alert("Maximum of nine position entries exceeded");
+          return;
+        }
+        countPos++;
+        let positionId = countPos;
+        $('#position-fields').append(`
+          <div id="position${positionId}">
+            <p>
+              Year: <input type="text" name="year${positionId}" />
+              <textarea name="desc${positionId}" rows="6" cols="80"></textarea>
+              <input type="button" class="remove-pos btn btn-secondary px-2 py-0 mt-1" data-id="${positionId}" value="-" />
+            </p>
+          </div>
+        `);
+      });
+      // Delegated handler for the "-" buttons
+      $('#position-fields').on('click', '.remove-pos', function() {
+        let id = $(this).data('id');
+        $('#position' + id).remove();
+      });
+    });
 
     // Form Validation (Client-side)
     document.getElementById('update-profile-form').addEventListener('submit', function(event) {

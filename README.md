@@ -1,7 +1,7 @@
 # Resume Registry Application
 
-A complete PHP & MySQL CRUD web application for managing user profiles.
-Each user can log in and manage only their own profiles.
+A complete PHP & MySQL CRUD web application for managing resume profiles.
+Each user can log in and manage only their own profiles, including dynamic work positions.
 
 ## Features
 
@@ -11,7 +11,10 @@ Each user can log in and manage only their own profiles.
   - Create new profiles
   - View all profiles in a dynamic table
   - Each user can update only their own profiles
-  - Delete profiles
+  - Delete profiles with confirmation prompt
+- **Work Positions** (One-to-Many Relationship):
+  - Each profile can have up to 9 work positions
+  - Positions are dynamically added/removed using **jQuery**
 - Client & Server-side form validation
 - Flash messages for success/error feedback
 - Secure output with htmlentities() to prevent XSS
@@ -24,7 +27,7 @@ Each user can log in and manage only their own profiles.
 - PDO (Prepared Statements)
 - HTML5 / CSS3
 - Bootstrap 5
-- Basic JavaScript
+- JavaScript (Vanilla & jQuery)
 
 ## Database Setup
 

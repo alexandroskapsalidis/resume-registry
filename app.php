@@ -85,7 +85,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         unset($_SESSION["error"]);
       }
 
-      echo "<h2 class='text-center'>All Profiles of User: <span class='text-primary'>{$_SESSION["name"]}</span></h2>";
+      echo "<h2 class='text-center'>All Profiles of User: <span class='text-primary fs-4'>{$_SESSION["name"]}</span></h2>";
       echo "<tr><th>Name</th><th>Headline</th><th>Summary</th><th>Action</th></tr>";
       foreach ($rows as $row) {
         echo "<tr><td>";
@@ -98,8 +98,8 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // We use a little form in every row with a Primary Key embedded in the hidden field
         echo ('<form method="post"><input type="hidden" ');
         echo ('name="profile_id" value="' . htmlentities($row['profile_id']) . '">' . "\n");
-        echo ('<a class="btn btn-info px-2 me-2" href="view_profile.php?profile_id=' . htmlentities($row['profile_id']) . '">Details</a>');
-        echo ('<a class="btn btn-warning px-2 py-1 me-2" href="update.php?profile_id=' . htmlentities($row['profile_id']) . '">Edit</a>');
+        echo ('<a class="btn btn-info px-2  py-1 me-2" href="view_profile.php?profile_id=' . htmlentities($row['profile_id']) . '">Details</a>');
+        echo ('<a class="btn btn-warning px-2  py-1 me-2" href="update.php?profile_id=' . htmlentities($row['profile_id']) . '">Edit</a>');
         echo ('<input type="submit" class="btn btn-danger px-2  py-1" value="Delete" name="delete">');
         echo ("\n</form>\n");
         echo ("</td></tr>\n");

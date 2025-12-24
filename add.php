@@ -28,6 +28,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       return;
     }
 
+    // Validating Positions   
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($_POST['year' . $i])) continue;
+      if (!isset($_POST['desc' . $i])) continue;
+      $year = $_POST['year' . $i];
+      $desc = $_POST['desc' . $i];
+      if (strlen($year) == 0 || strlen($desc) == 0) {
+        $_SESSION['error'] = "All fields are required";
+        header("Location: add.php");
+        return;
+      }
+      if (!is_numeric($year)) {
+        $_SESSION['error'] = "Position year must be numeric";
+        header("Location: add.php");
+        return;
+      }
+    }
+
+    // Inserting profile into the Database
     $sql = "INSERT INTO profile (user_id, first_name, last_name, email, headline, summary)
             VALUES (:user_id, :first_name, :last_name, :email, :headline, :summary)";
     $stmt = $pdo->prepare($sql);
@@ -39,6 +58,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       ':headline' => $_POST['headline'],
       ':summary' => $_POST['summary']
     ));
+
+    // Inserting Positions into the Database
+    $profile_id = $pdo->lastInsertId();
+    $rank = 1;
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($_POST['year' . $i])) continue;
+      if (!isset($_POST['desc' . $i])) continue;
+      $year = $_POST['year' . $i];
+      $desc = $_POST['desc' . $i];
+
+      $stmt = $pdo->prepare('INSERT INTO Position (profile_id, rank, year, description)
+                            VALUES (:pid, :rank, :year, :desc)');
+      $stmt->execute(
+        array(
+          ':pid' => $profile_id,
+          'rank' => $rank,
+          ':year' => $year,
+          ':desc' => $desc
+        )
+      );
+      $rank++;
+    }
 
     // Adding a success message to the SESSION to show after insertion
     $_SESSION["addMessage"] = "The row inserted succesfully.";
@@ -143,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // When the plus button is being clicked, we take the #position-fields div and append the html code
-    // for the positions. We have a return false; in the minus button in order not to submit the form.
+    // for the positions.
     let countPos = 0;
 
     $(document).ready(function() {
