@@ -56,7 +56,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo ("</p>");
   }
   ?>
-  <main class="w-75 container bg-light my-5 p-5">
+  <main class="w-80 container bg-light my-5 p-5">
     <?php
     // No entrance if not logged in
     if (! isset($_SESSION["email"])) {
@@ -95,14 +95,16 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo ("</td><td>");
         echo htmlentities($row['summary']);
         echo ("</td><td>");
-        // We use a little form in every row with a Primary Key embedded in the hidden field 
+        // We use a little form in every row with a Primary Key embedded in the hidden field
         echo ('<form method="post"><input type="hidden" ');
         echo ('name="profile_id" value="' . htmlentities($row['profile_id']) . '">' . "\n");
+        echo ('<a class="btn btn-info px-2 me-2" href="view_profile.php?profile_id=' . htmlentities($row['profile_id']) . '">Details</a>');
         echo ('<a class="btn btn-warning px-2 py-1 me-2" href="update.php?profile_id=' . htmlentities($row['profile_id']) . '">Edit</a>');
         echo ('<input type="submit" class="btn btn-danger px-2  py-1" value="Delete" name="delete">');
         echo ("\n</form>\n");
         echo ("</td></tr>\n");
       }
+
       ?>
     </table>
 

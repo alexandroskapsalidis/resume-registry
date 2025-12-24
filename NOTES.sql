@@ -43,7 +43,7 @@ VALUES ('Alex', 'alex@email.com', '1a52e17fa899cf40fb04cfc42e6352f1');
 INSERT INTO users (name, email, hashed_password)
 VALUES ('Alexia', 'alexia@email.com', 'e7cf3ef4f17c3999a94f2c6f612e8a88');
 
--- Create the table Profile. Can be populated from the code
+-- Create the table profile. Can be populated from the code
 CREATE TABLE profile (
   profile_id INTEGER NOT NULL AUTO_INCREMENT,
   user_id INTEGER NOT NULL,
@@ -59,3 +59,16 @@ CREATE TABLE profile (
   ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Create the table positions. Can be populated from the code
+CREATE TABLE Position (
+  position_id INTEGER NOT NULL AUTO_INCREMENT,
+  profile_id INTEGER,
+  rank INTEGER,
+  year INTEGER,
+  description TEXT,
+  PRIMARY KEY(position_id),
+  CONSTRAINT position_ibfk_1
+    FOREIGN KEY (profile_id)
+    REFERENCES Profile (profile_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
