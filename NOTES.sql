@@ -59,8 +59,9 @@ CREATE TABLE profile (
   ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Create the table positions. Can be populated from the code
-CREATE TABLE Position (
+-- Create the table positions which has a many-to-one relationship with the table profile.
+-- Each profile can have multiple positions. The table can be populated from the code
+CREATE TABLE position (
   position_id INTEGER NOT NULL AUTO_INCREMENT,
   profile_id INTEGER,
   rank INTEGER,
@@ -69,6 +70,43 @@ CREATE TABLE Position (
   PRIMARY KEY(position_id),
   CONSTRAINT position_ibfk_1
     FOREIGN KEY (profile_id)
-    REFERENCES Profile (profile_id)
+    REFERENCES profile (profile_id)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create the institution table to store unique educational institutions.
+CREATE TABLE institution (
+  institution_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255),
+  UNIQUE(name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create the Education table which implements a many-to-many relationship
+-- between Profile and Institution. Each profile can be associated with multiple
+-- institutions and each institution can be associated with multiple profiles.
+CREATE TABLE education (
+  profile_id INTEGER,
+  institution_id INTEGER,
+  rank INTEGER,
+  year INTEGER,
+  CONSTRAINT education_ibfk_1
+    FOREIGN KEY (profile_id)
+    REFERENCES Profile (profile_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT education_ibfk_2
+    FOREIGN KEY (institution_id)
+    REFERENCES institution (institution_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY(profile_id, institution_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Pre-insert some university data into the institution table so it can be referenced by the Education table.
+INSERT INTO Institution (name) VALUES ('National Technical University of Athens');
+INSERT INTO Institution (name) VALUES ('National and Kapodistrian University of Athens');
+INSERT INTO Institution (name) VALUES ('Aristotle University of Thessaloniki');
+INSERT INTO Institution (name) VALUES ('Athens University of Economics and Business');
+INSERT INTO Institution (name) VALUES ('University of Patras');
+INSERT INTO Institution (name) VALUES ('University of Crete');
+INSERT INTO Institution (name) VALUES ('University of Ioannina');
+INSERT INTO Institution (name) VALUES ('University of Macedonia');
+INSERT INTO Institution (name) VALUES ('Technical University of Crete');
