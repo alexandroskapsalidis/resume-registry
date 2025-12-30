@@ -15,6 +15,10 @@ Each user can log in and manage only their own profiles, including dynamic work 
 - **Work Positions** (One-to-Many Relationship):
   - Each profile can have up to 9 work positions
   - Positions are dynamically added/removed using **jQuery**
+- **Education History**:
+  - Each profile can have up to **9 education entries**
+  - Implemented using a **Many-to-Many relationship**
+    between profiles and institutions (via the `Education` table)
 - Client & Server-side form validation
 - Flash messages for success/error feedback
 - Secure output with htmlentities() to prevent XSS
@@ -28,6 +32,7 @@ Each user can log in and manage only their own profiles, including dynamic work 
 - HTML5 / CSS3
 - Bootstrap 5
 - JavaScript (Vanilla & jQuery)
+- JSON (AJAX data exchange)
 
 ## Database Setup
 
