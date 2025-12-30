@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (strpos($_POST['email'], '@') === false) {
       $_SESSION['error'] = "Email must have an at-sign (@)";
       $profile_id = $_POST['profile_id'];
-      header("Location: update.php?profile_id=" . urlencode($profile_id));
+      header("Location: update.php?profile_id=" . urlencode($_POST['profile_id']));
       return;
     }
 
@@ -41,12 +41,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $desc = $_POST['desc' . $i];
       if (strlen($year) == 0 || strlen($desc) == 0) {
         $_SESSION['error'] = "All fields are required";
-        header("Location: update.php");
+        header("Location: update.php?profile_id=" . urlencode($_POST['profile_id']));
         return;
       }
       if (!is_numeric($year)) {
         $_SESSION['error'] = "Position year must be numeric";
-        header("Location: update.php");
+        header("Location: update.php?profile_id=" . urlencode($_POST['profile_id']));
+        return;
+      }
+    }
+
+    // Validating Education   
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($_POST['edu_year' . $i])) continue;
+      if (!isset($_POST['institution' . $i])) continue;
+      $year = $_POST['edu_year' . $i];
+      $institution = $_POST['institution' . $i];
+      if (strlen($year) == 0 || strlen($institution) == 0) {
+        $_SESSION['error'] = "All fields are required";
+        header("Location: update.php?profile_id=" . urlencode($profile_id));
+        return;
+      }
+
+      if (!is_numeric($year)) {
+        $_SESSION['error'] = "Education year must be numeric";
+        header("Location: update.php?profile_id=" . urlencode($profile_id));
         return;
       }
     }
@@ -71,23 +90,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       ':user_id' => $_SESSION['user_id']
     ));
 
+    // Updating Positions
     // Clear out the old position entries
     $stmt = $pdo->prepare('DELETE FROM position WHERE profile_id=:pid');
     $stmt->execute(array(':pid' => $_POST['profile_id']));
-
     // Insert the new position entries
     $rank = 1;
     for ($i = 1; $i <= 9; $i++) {
       if (!isset($_POST['year' . $i])) continue;
       if (!isset($_POST['desc' . $i])) continue;
-
       $year = $_POST['year' . $i];
       $desc = $_POST['desc' . $i];
-
       $stmt = $pdo->prepare('INSERT INTO Position
         (profile_id, rank, year, description)
         VALUES ( :pid, :rank, :year, :desc )');
-
       $stmt->execute(
         array(
           ':pid' => $_POST['profile_id'],
@@ -96,11 +112,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           ':desc' => $desc
         )
       );
-
       $rank++;
     }
 
-    $_SESSION["addMessage"] = "The row updated succesfully.";
+    // Updating Educations
+    // Clear out the old educations
+    $stmt = $pdo->prepare('DELETE FROM education WHERE profile_id=:pid');
+    $stmt->execute(array(':pid' => $_POST['profile_id']));
+
+    // Insert the new educations
+    $rank = 1;
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($_POST['edu_year' . $i])) continue;
+      if (!isset($_POST['institution' . $i])) continue;
+      $edu_year = $_POST['edu_year' . $i];
+      $institution = $_POST['institution' . $i];
+
+      // Lookup the institution if it is there.
+      $institution_id = false;
+      $stmt = $pdo->prepare('SELECT institution_id FROM Institution WHERE name = :name');
+      $stmt->execute(array(':name' => $institution));
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($row !== false) $institution_id = $row['institution_id'];
+
+      // If there was no institution, insert it
+      if ($institution_id === false) {
+
+        $stmt = $pdo->prepare('INSERT INTO Institution (name) VALUES (:name)');
+        $stmt->execute(array('name' => $institution));
+        $institution_id = $pdo->lastInsertId();
+      }
+      // Inserting Educations
+      $stmt = $pdo->prepare('INSERT INTO Education (profile_id, institution_id, rank, year)
+                             VALUES (:pid, :iid, :rank, :year)');
+      $stmt->execute(
+        array(
+          ':pid' => $_POST['profile_id'],
+          ':iid' => $institution_id,
+          ':rank' => $rank,
+          ':year' => $edu_year
+        )
+      );
+      $rank++;
+    }
+
+    $_SESSION["addMessage"] = "Profile updated succesfully.";
     header("Location: app.php");
     return;
   }
@@ -121,6 +177,12 @@ if ($row === false) {
 $stmt_pos = $pdo->prepare("SELECT * FROM position WHERE profile_id = :id ORDER BY rank");
 $stmt_pos->execute(array(':id' => $_GET['profile_id']));
 
+// Fetching the specific Educations of this Profile
+$stmt_edu = $pdo->prepare("SELECT e.year AS edu_year, i.name AS institution_name
+                           FROM education e JOIN institution i ON e.institution_id = i.institution_id
+                           WHERE e.profile_id = :id ORDER BY rank;");
+$stmt_edu->execute(array(':id' => $_GET['profile_id']));
+
 ?>
 
 <!------------------ The View ------------------------>
@@ -135,8 +197,15 @@ $stmt_pos->execute(array(':id' => $_GET['profile_id']));
   <meta name="description" content="Resume Registry management project built with PHP and MySQL.">
   <meta name="keywords" content="PHP, MySQL, Resume Registry, management, project">
   <link rel="icon" type="image/x-icon" href="profiles.png">
+  <!-- Bootstrap Library -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- jQuery UI CSS (required for the .autocomplete())-->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <!-- jQuery UI JS (required for the .autocomplete()) -->
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
   <title>Profiles</title>
 
   <style>
@@ -201,26 +270,48 @@ $stmt_pos->execute(array(':id' => $_GET['profile_id']));
         <input type="button" id="addPos" class="btn btn-secondary px-2 py-0" name="position" value="+">
       </p>
       <div id="position-fields">
+        <!-- Showing the possitions from the Database -->
         <?php
-        // Showing the possitions from the Database
         $countPos = 0;
         while ($pos_row = $stmt_pos->fetch(PDO::FETCH_ASSOC)) {
           $countPos++;
           $year = htmlentities($pos_row['year']);
           $description = htmlentities($pos_row['description']);
-
           echo '<div id="position' . $countPos . '">';
           echo  '<p>';
           echo 'Year: <input type="text" name="year' . $countPos . '" value="' . $year . '" />';
           echo '<textarea name="desc' . $countPos . '" rows="6" cols="80" placeholder="Description">' . $description . '</textarea>';
-          echo '<input type="button" class="remove-pos btn btn-secondary px-2 py-0 mt-1" data-id="' . $countPos . '" value="-" />';
-
+          echo '<input type="button" class="remove-pos btn btn-outline-secondary px-2 py-0 mt-1" data-id="' . $countPos . '" value="-" />';
           echo  '</p>';
           echo '</div>';
         }
         ?>
       </div>
 
+      <p>Education:
+        <input type="button" id="addEdu" class="btn btn-secondary px-2 py-0" name="education" value="+">
+      </p>
+      <div id="education-fields">
+        <!-- Showing the educations from the Database -->
+        <?php
+        $countEdu = 0;
+        while ($edu_row = $stmt_edu->fetch(PDO::FETCH_ASSOC)) {
+          $countEdu++;
+          $year = htmlentities($edu_row['edu_year']);
+          $institution = htmlentities($edu_row['institution_name']);
+          echo '<div id="education' . $countEdu . '">';
+          echo '<p>';
+          echo 'Year: <input type="text" name="edu_year' . $countEdu . '" class="form-control" value="' . $year . '" />';
+          echo 'Institution: <input type="text" name="institution' . $countEdu . '" class="institution form-control" value="' . $institution . '" />';
+          echo '<input type="button" class="remove-edu btn btn-outline-secondary px-2 py-0 mt-1"
+                 data-id="' . $countEdu . '" value="-" />';
+          echo '</p>';
+          echo '</div>';
+        }
+        ?>
+      </div>
+
+      <!-- Buttons -->
       <p class="d-flex justify-content-center mt-5">
         <input type="hidden" name="profile_id" value="<?= htmlentities($row['profile_id']) ?>">
         <input type="submit" class="btn btn-success" value="Update" name="update" />
@@ -244,10 +335,13 @@ $stmt_pos->execute(array(':id' => $_GET['profile_id']));
       });
     }
 
-    // When the plus button is being clicked, we take the #position-fields div and append the html code
-    // for the positions.
+    // When the plus button is being clicked, we take the #position-fields and education-fields divs
+    // and append the html codefor the positions and educations respectively.
     let countPos = <?= $countPos ?>;
+    let countEdu = <?= $countEdu ?>;
     $(document).ready(function() {
+
+      // Adding positions
       $('#addPos').click(function() {
         if (countPos >= 9) {
           alert("Maximum of nine position entries exceeded");
@@ -255,22 +349,63 @@ $stmt_pos->execute(array(':id' => $_GET['profile_id']));
         }
         countPos++;
         let positionId = countPos;
+
         $('#position-fields').append(`
           <div id="position${positionId}">
             <p>
-              Year: <input type="text" name="year${positionId}" />
-              <textarea name="desc${positionId}" rows="6" cols="80"></textarea>
-              <input type="button" class="remove-pos btn btn-secondary px-2 py-0 mt-1" data-id="${positionId}" value="-" />
+              Year: <input type="text" name="year${positionId}" class="form-control"/>
+              Position: <textarea name="desc${positionId}" rows="6" cols="80" class="form-control"></textarea>
+              <input type="button" class="remove-pos btn btn-outline-secondary px-2 py-0 mt-1"
+                    data-id="${positionId}" value="-" />
             </p>
           </div>
         `);
       });
-      // Delegated handler for the "-" buttons
+
       $('#position-fields').on('click', '.remove-pos', function() {
         let id = $(this).data('id');
         $('#position' + id).remove();
       });
+
+      // Adding education
+      $('#addEdu').click(function(e) {
+        e.preventDefault();
+
+        if (countEdu >= 9) {
+          alert("Maximum of nine education entries exceeded");
+          return;
+        }
+
+        countEdu++;
+        let eduId = countEdu;
+
+        $('#education-fields').append(`
+          <div id="education${eduId}">
+            <p>
+              Year: <input type="text" name="edu_year${eduId}" class="form-control"/>
+              Institution: <input type="text" name="institution${eduId}" class="institution form-control"/>
+              <input type="button" class="remove-edu btn btn-outline-secondary px-2 py-0 mt-1"
+                    data-id="${eduId}" value="-" />
+            </p>
+          </div>
+        `);
+
+        // Apply autocomplete to all institution fields
+        $(".institution").autocomplete({
+          source: "autocomplete.php",
+          minLength: 1
+        });
+
+      });
+
+      // Remove Education (delegated handler for the "-" buttons)
+      $('#education-fields').on('click', '.remove-edu', function() {
+        let id = $(this).data('id');
+        $('#education' + id).remove();
+      });
+
     });
+
 
     // Form Validation (Client-side)
     document.getElementById('update-profile-form').addEventListener('submit', function(event) {

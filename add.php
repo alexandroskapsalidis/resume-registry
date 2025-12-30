@@ -48,9 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validating Education   
     for ($i = 1; $i <= 9; $i++) {
-      if (!isset($_POST['year' . $i])) continue;
+      if (!isset($_POST['edu_year' . $i])) continue;
       if (!isset($_POST['institution' . $i])) continue;
-      $year = $_POST['year' . $i];
+      $year = $_POST['edu_year' . $i];
       $institution = $_POST['institution' . $i];
       if (strlen($year) == 0 || strlen($institution) == 0) {
         $_SESSION['error'] = "All fields are required";
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $stmt->execute(
         array(
           ':pid' => $profile_id,
-          'rank' => $rank,
+          ':rank' => $rank,
           ':year' => $year,
           ':desc' => $desc
         )
@@ -158,16 +158,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <link rel="icon" type="image/x-icon" href="profiles.png">
   <!-- Bootstrap Library -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-  <!-- jQuery UI CSS -->
+  <!-- jQuery UI CSS (required for the .autocomplete())-->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
-
-  <!-- jQuery UI JS -->
+  <!-- jQuery UI JS (required for the .autocomplete()) -->
   <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
-
 
   <title>Profiles</title>
 
@@ -253,8 +249,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       });
     }
 
-    // When the plus button is being clicked, we take the #position-fields div and append the html code
-    // for the positions.
+    // When the plus button is being clicked, we take the #position-fields and education-fields divs
+    // and append the html codefor the positions and educations respectively.
     let countPos = 0;
     let countEdu = 0;
     $(document).ready(function() {
@@ -311,7 +307,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Apply autocomplete to all institution fields
         $(".institution").autocomplete({
-          source: "autocomplete.php"
+          source: "autocomplete.php",
+          minLength: 1
         });
 
       });
