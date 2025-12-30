@@ -37,3 +37,11 @@ Each user can log in and manage only their own profiles, including dynamic work 
 ## Database Setup
 
 To get started, use the included `NOTES.sql` file. It creates the database, users, and tables with sample data.
+
+## View Project
+
+View the project online using the following credentials
+
+- Email: demo@email.com
+- Password: 123
+<p>Live Demo 🌐: <a href="https://kapsalidis-resume-registry.great-site.net/" target="_blank">Resume Registry</a></p>
