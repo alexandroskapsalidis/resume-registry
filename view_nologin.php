@@ -35,7 +35,7 @@ require_once "pdo.php";
         // Fetch joined profiles with user names
         $stmt = $pdo->query("
                               SELECT p.first_name, p.last_name, p.email, p.headline, p.summary, u.name
-                              FROM Profile AS p
+                              FROM profile AS p
                               JOIN users AS u ON p.user_id = u.user_id
                               ORDER BY u.name
                           ");
