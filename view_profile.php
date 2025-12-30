@@ -39,7 +39,7 @@ require_once "pdo.php";
   }
   ?>
 
-  <main class="w-75 container bg-light my-5 p-5">
+  <main class="w-50 container bg-light my-5 p-5">
 
     <?php
     // No entrance if not logged in
@@ -61,6 +61,12 @@ require_once "pdo.php";
       // Fetching the specific Positions of this Profile
       $stmt_pos = $pdo->prepare("SELECT * FROM position WHERE profile_id = :id ORDER BY rank");
       $stmt_pos->execute(array(':id' => $_GET['profile_id']));
+
+      // Fetching the specific Educations of this Profile        
+      $stmt_edu = $pdo->prepare("SELECT e.year AS edu_year, i.name AS institution_name
+                                   FROM education e JOIN institution i ON e.institution_id = i.institution_id
+                                   WHERE e.profile_id = :id ORDER BY rank;");
+      $stmt_edu->execute(array(':id' => $_GET['profile_id']));
 
       echo "<h2 class='text-center'>Profile: <span style='color:blue; font-size:larger;'>{$row["first_name"]} {$row["last_name"]}</span></h2>";
       // echo "<tr><th>Name</th><th>Headline</th><th>Action</th>";
@@ -91,6 +97,7 @@ require_once "pdo.php";
       echo ($row['summary']);
       echo ("</td></tr>\n");
 
+      // Showing Positions
       echo ("<tr><td colspan='2' class='m-3'></td></tr>");
       echo ("<tr><td colspan='2' class=' fs-4 p-2'>Positions</td></tr>");
       echo ("<tr><td colspan='2' class='m-3'></td></tr>");
@@ -103,6 +110,22 @@ require_once "pdo.php";
         echo "<tr>";
         echo "<td>{$pos_row['year']}</td>";
         echo "<td>{$pos_row['description']}</td>";
+        echo "</tr>\n";
+      }
+
+      // Showing Education
+      echo ("<tr><td colspan='2' class='m-3'></td></tr>");
+      echo ("<tr><td colspan='2' class=' fs-4 p-2'>Education</td></tr>");
+      echo ("<tr><td colspan='2' class='m-3'></td></tr>");
+      echo "<tr>";
+      echo "<th>Year</th>";
+      echo "<th>Institution</th>";
+      echo "</tr>\n";
+      // Looping the Educations from the Database
+      while ($edu_row = $stmt_edu->fetch(PDO::FETCH_ASSOC)) {
+        echo "<tr>";
+        echo "<td>{$edu_row['edu_year']}</td>";
+        echo "<td>{$edu_row['institution_name']}</td>";
         echo "</tr>\n";
       }
 

@@ -139,7 +139,6 @@ $stmt_pos->execute(array(':id' => $_GET['profile_id']));
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <title>Profiles</title>
 
-
   <style>
     h2 {
       font-size: 1.4rem;

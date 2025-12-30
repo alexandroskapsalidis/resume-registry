@@ -100,7 +100,7 @@ CREATE TABLE education (
   PRIMARY KEY(profile_id, institution_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Pre-insert some university data into the institution table so it can be referenced by the Education table.
+-- Pre-insert some university data into the institution table so it can be referenced by the education table.
 INSERT INTO Institution (name) VALUES ('National Technical University of Athens');
 INSERT INTO Institution (name) VALUES ('National and Kapodistrian University of Athens');
 INSERT INTO Institution (name) VALUES ('Aristotle University of Thessaloniki');
