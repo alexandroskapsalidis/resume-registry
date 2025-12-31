@@ -1,7 +1,7 @@
 # Resume Registry Application
 
 A complete PHP & MySQL CRUD web application for managing resume profiles.
-Each user can log in and manage only their own profiles, including dynamic work positions.
+Each user can log in and manage only their own profiles, including dynamic work positions and education history.
 
 ## Features
 
