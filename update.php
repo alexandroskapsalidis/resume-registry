@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       if (!isset($_POST['desc' . $i])) continue;
       $year = $_POST['year' . $i];
       $desc = $_POST['desc' . $i];
-      $stmt = $pdo->prepare('INSERT INTO Position
+      $stmt = $pdo->prepare('INSERT INTO position
         (profile_id, rank, year, description)
         VALUES ( :pid, :rank, :year, :desc )');
       $stmt->execute(
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       // Lookup the institution if it is there.
       $institution_id = false;
-      $stmt = $pdo->prepare('SELECT institution_id FROM Institution WHERE name = :name');
+      $stmt = $pdo->prepare('SELECT institution_id FROM institution WHERE name = :name');
       $stmt->execute(array(':name' => $institution));
       $row = $stmt->fetch(PDO::FETCH_ASSOC);
       if ($row !== false) $institution_id = $row['institution_id'];
@@ -138,12 +138,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       // If there was no institution, insert it
       if ($institution_id === false) {
 
-        $stmt = $pdo->prepare('INSERT INTO Institution (name) VALUES (:name)');
+        $stmt = $pdo->prepare('INSERT INTO institution (name) VALUES (:name)');
         $stmt->execute(array('name' => $institution));
         $institution_id = $pdo->lastInsertId();
       }
       // Inserting Educations
-      $stmt = $pdo->prepare('INSERT INTO Education (profile_id, institution_id, rank, year)
+      $stmt = $pdo->prepare('INSERT INTO education (profile_id, institution_id, rank, year)
                              VALUES (:pid, :iid, :rank, :year)');
       $stmt->execute(
         array(
